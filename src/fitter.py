@@ -256,7 +256,7 @@ class DistributedTorchFitterBase:
                 if not isinstance(validation_callbacks, list):
                     validation_callbacks = [validation_callbacks]
                 for c in validation_callbacks:
-                    c(history)
+                    c(history, step=(self.epoch+1)*len(train_dtl))
 
             # Check if Early Stopping condition is met
             if (early_stopping > 0) & (es_epochs >= early_stopping):
