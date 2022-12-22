@@ -490,18 +490,17 @@ class DistributedTorchFitterBase:
             verbose (bool, optional): True = print logs, False = silence. Defaults to True.
         """
         # Fetch model without distributed config
-        self.model = self.scaler.unwrap_model(self.model)
+        model_aux = self.scaler.unwrap_model(self.model)
 
         if verbose:
             self.log(f'Checkpoint is saved to {path}')
-        self.model.eval()
+        model_aux.eval()
 
         data = {
-                'model_state_dict': self.model.state_dict(),
+                'model_state_dict': model_aux.state_dict(),
                 'optimizer_state_dict': self.optimizer.state_dict(),
                 'best_summary_loss': self.best_metric,
                 'epoch': self.epoch,
-                'scaler': self.scaler.state_dict()
         }
 
         if self.scheduler is not None:
