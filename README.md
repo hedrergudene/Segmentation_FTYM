@@ -15,6 +15,9 @@ Image segmentation is one of the most popular computer vision tasks, where every
 
 ![segm_ner](./images/segm_ner.jpg)
 
+*to be continued...*
+
+Even though facial landmark detection is not covered in this use case, this dataset contains enough information to tackle that problem; you can find more info about modelling in this recent [survey paper](https://arxiv.org/abs/2101.10808).
 
 ## Repo structure
 
@@ -70,16 +73,17 @@ Click here to find out!
 
 ## Implementation details
 
-* The chosen model architecture for this project is [SegFormer pretrained backbone :hugs:](https://huggingface.co/docs/transformers/model_doc/segformer) from [NVIDIA Research project ](https://github.com/NVlabs/SegFormer). 
+* Data augmentation pipelines are based on [albumentations](https://albumentations.ai/) library.
+* The chosen model architecture for this project is [SegFormer pretrained backbone :hugs:](https://huggingface.co/docs/transformers/model_doc/segformer) from [NVIDIA Research project ](https://github.com/NVlabs/SegFormer).
 * Loss function is a generalisation of the widely known Jaccard loss, based on [this paper](https://www.scitepress.org/Papers/2021/103040/103040.pdf).
-* Training loop has been adapted to [accelerate :hugs:](https://github.com/huggingface/accelerate) library to be able to adapt our environment to our computing resources.
+* Training loop has been accomodated to [accelerate :hugs:](https://github.com/huggingface/accelerate) library to be able to adapt our environment to our computing resources.
 
 
 ## Monitoring integration
 This experiment has been integrated with Weights and Biases to track all metrics, hyperparameters, callbacks and GPU performance. You only need to adapt the parameters in the `experiment_config.yaml` configuration file to keep track of the model training and evaluation.
 
 ## Quickstart code
-In the config section, you will find some template configuration files to get up to speed with `accelerate`. As an example, the following terminal command will run the training script:
+In the config section, you will find template configuration files to get up to speed with `accelerate`. As an example, the following terminal command will run the training script:
 
 ```bash
 accelerate launch --config_file ./config/single_gpu_config.yaml train.py

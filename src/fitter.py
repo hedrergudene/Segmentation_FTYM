@@ -389,7 +389,6 @@ class DistributedTorchFitterBase:
         summary_loss = AverageMeter()
         y_preds = []
         y_true = []
-        batch_size = val_dtl.batch_size
 
         t = time.time()
         for step, data in enumerate(val_dtl):
@@ -417,7 +416,7 @@ class DistributedTorchFitterBase:
                 # Reduce loss (weights are left to custom loss implementation)
                 loss = self.scaler.reduce(loss, reduction='sum')
                 # Update metrics tracker objects
-                summary_loss.update(loss.detach().item(), batch_size)
+                summary_loss.update(loss.detach().item(), self.batch_size)
                 # Gather tensors for metric calculation
                 if metric:
                     output = self.scaler.gather(output)
