@@ -1,0 +1,23 @@
+wandb:
+  WANDB_API_KEY: '1bb44e6be47564584868ec55bac8cf468cf0e47f'
+  WANDB_USERNAME: 'azm630'
+  WANDB_PROJECT: 'segformer_FTYM'
+train:
+  img_size: 512
+  batch_size: 4
+  num_workers: 4
+  hf_model: 'nvidia/mit-b0'
+  p_loss: 2
+  eps_loss: 0.000001
+  ignore_index_loss: 255
+  learning_rate: 0.00005
+  weight_decay: 0.001
+  epochs: 1
+  warmup_epochs_factor: 0.125
+  early_stopping: 2
+  scheduler_mode: 'min'
+  verbose_steps: 10
+  filepath: 'output'
+  mixed_precision: 'no'
+  world_size: 8
+  seed: 123
