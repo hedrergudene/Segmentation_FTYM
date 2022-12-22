@@ -569,3 +569,32 @@ class DistributedTorchFitterBase:
 class SegmFitter(DistributedTorchFitterBase):
     def unpack(self, data):
         return data
+
+    def train_one_batch(self, x, y):
+        """
+        Trains one batch of data.
+        The actions to be done here are:
+        - extract x and y (labels)
+        - calculate output and loss
+        - backpropagate
+        Args:
+            x (List or Tuple or Dict): Data
+            y (torch.Tensor): Labels
+            w (torch.Tensor, optional): Weights. Defaults to None.
+        Returns:
+            torch.Tensor: A tensor with the calculated loss
+        """
+        with self.scaler.accumulate(self.model):
+            # Reset gradients
+            self.optimizer.zero_grad()
+            # Get logits
+            output = self.model(pixel_values=x, labels=y)
+            # Compute loss
+            loss = output.get('loss')
+            # Reduce loss (weights are left to custom loss implementation)
+            loss = self.scaler.reduce(loss, reduction='sum')
+            # Backpropagation
+            self.scaler.backward(loss)
+            if self.scaler.sync_gradients:
+                self.scaler.clip_grad_value_(self.model.parameters(), self.clip_value)
+        return loss
