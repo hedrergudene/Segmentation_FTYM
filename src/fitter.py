@@ -567,6 +567,7 @@ class DistributedTorchFitterBase:
 
 # Customised class
 class SegmFitter(DistributedTorchFitterBase):
+
     def unpack(self, data):
         return data
 
@@ -598,3 +599,74 @@ class SegmFitter(DistributedTorchFitterBase):
             if self.scaler.sync_gradients:
                 self.scaler.clip_grad_value_(self.model.parameters(), self.clip_value)
         return loss
+
+    def validation(self, val_dtl, metric=None, verbose_steps=0):
+        """
+        Validates a model
+        Parameters
+        ----------
+        val_dtl : torch.utils.data.DataLoader
+            Validation Data
+        metric : function with (y_true, y_pred, **metric_kwargs) signature
+            Metric to evaluate results on
+        metric_kwargs : dict
+            Arguments for the passed metric. Ignored if metric is None
+        verbose_steps : int, defaults to 0
+            number of step to print every training summary
+        Returns
+        -------
+        AverageMeter
+            Object with this epochs's average loss
+        float
+            Calculated metric if a metric is provided, else None
+        """
+        if self.model is None or self.loss_function is None or self.optimizer is None:
+            self.log(f"ERROR: Either model, loss function or optimizer is not existing.")
+            raise ValueError(f"ERROR: Either model, loss function or optimizer is not existing.")
+
+        self.model.eval()
+        summary_loss = AverageMeter()
+        y_preds = []
+        y_true = []
+
+        t = time.time()
+        for step, data in enumerate(val_dtl):
+            if self.verbose & (verbose_steps > 0):
+                if step % verbose_steps == 0:
+                    print(
+                        f'\rVal Step {step}/{len(val_dtl)} | ' +
+                        f'val_loss: {summary_loss.avg:.5f} | ' +
+                        f'time: {(time.time() - t):.2f} secs |' +
+                        f'ETA: {(len(val_dtl)-step)*(time.time() - t)/(step+1):.2f}', end=''
+                    )
+            with torch.no_grad():
+                x, y = self.unpack(data)
+                if metric:
+                    y_true += y.cpu().numpy().tolist()
+                # Get model logits
+                output = self.model(pixel_values=x, labels=y)
+                # Compute loss
+                loss = output.get('loss')
+                # Reduce loss (weights are left to custom loss implementation)
+                loss = self.scaler.reduce(loss, reduction='sum')
+                # Update metrics tracker objects
+                summary_loss.update(loss.detach().item(), self.batch_size)
+                # Gather tensors for metric calculation
+                if metric:
+                    output = self.scaler.gather(output)
+                    y_preds += output.cpu().numpy().tolist()
+
+        # Callback metrics
+        metric_log = ' '*30
+        if metric:
+            calculated_metrics = []
+            y_pred = np.argmax(y_preds, axis=1)
+            for f, args in metric:
+                value = f(y_true, y_pred, **args)
+                calculated_metrics.append((value, f.__name__))
+                metric_log = f'- {f.__name__} {value:.5f} '
+        else:
+            calculated_metrics = None
+
+        self.log(f'\r[VALIDATION] {(time.time() - t):.2f}s - val. loss: {summary_loss.avg:.5f} ' + metric_log)
+        return summary_loss, calculated_metrics
