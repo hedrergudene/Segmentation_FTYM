@@ -101,8 +101,7 @@ def setup_folder_structure_FTYM(
         'CLOTHING' : 15,
         'GLASSES' : 16,
         'HEADWEAR' : 17,
-        'FACEWEAR' : 18,
-        'IGNORE' : 255
+        'FACEWEAR' : 18
     }
 
     return train_idx, val_idx, tag2idx
