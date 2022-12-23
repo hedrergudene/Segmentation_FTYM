@@ -19,7 +19,7 @@ Some of its applications involve handling sensitive data, such as face parsing. 
 
 > We demonstrate that it is possible to perform face-related computer vision in the wild using synthetic data alone. The community has long enjoyed the benefits of synthesizing training data with graphics, but the domain gap between real and synthetic data has remained a problem, especially for human faces. Researchers have tried to bridge this gap with data mixing, domain adaptation, and domain-adversarial training, but we show that it is possible to synthesize data with minimal domain gap, so that models trained on synthetic data generalize to real in-the-wild datasets.
 
-Even though facial landmark detection is not covered in this use case, this dataset contains enough information to tackle that problem; you can find more info about modelling in this recent [survey paper](https://arxiv.org/abs/2101.10808).
+In this repository, semantic segmentation task is covered with this purely synthetic dataset, in order to explore new alternatives with regards to data generation. Even though facial landmark detection is not covered in this use case, this dataset contains enough information to tackle that problem; you can find more info about modelling in this recent [survey paper](https://arxiv.org/abs/2101.10808).
 
 ## Repo structure
 
@@ -83,27 +83,7 @@ Click here to find out!
     {0: 62.478843, 1: 8.605424, 2: 0.75495, 3: 0.052647, 4: 0.05276, 5: 0.109988, 6: 0.110996, 7: 0.189292, 8: 0.193591, 9: 0.108976, 10: 0.183389, 11: 0.209963, 12: 1.66163, 13:8.457067, 14: 0.67025, 15: 14.718491, 16: 0.164434, 17: 1.277309, 18: 0.0}
     ```
     
-    As a result, loss function is weighted with inverse frequency ratios:
-    
-    * Weight for index 0: 0.0001658747314334
-    * Weight for index 1: 0.0012043172954295
-    * Weight for index 2: 0.0137276061200101
-    * Weight for index 3: 0.1968507907700739
-    * Weight for index 4: 0.1964319631162028
-    * Weight for index 5: 0.0942255875320043
-    * Weight for index 6: 0.0933697862761819
-    * Weight for index 7: 0.0547495411674153
-    * Weight for index 8: 0.0535336807499800
-    * Weight for index 9: 0.0951002747093535
-    * Weight for index 10: 0.0565119300908439
-    * Weight for index 11: 0.0493595760815996
-    * Weight for index 12: 0.0062370452717332
-    * Weight for index 13: 0.0012254438559717
-    * Weight for index 14: 0.0154623923498118
-    * Weight for index 15: 0.0007041252515757
-    * Weight for index 16: 0.0630263970748995
-    * Weight for index 17: 0.0081136675554797
-    * Weight for index 18: 0.0000000000000000
+    As a result, loss function is weighted with inverse frequency ratios.
 
 
 * Training loop has been built upon [accelerate :hugs:](https://github.com/huggingface/accelerate) library to be able to adapt our environment to a variety of computing resources.

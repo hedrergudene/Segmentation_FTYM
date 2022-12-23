@@ -178,10 +178,11 @@ class DistributedTorchFitterBase:
         self.batch_size = self.world_size*train_dtl.batch_size
 
         # Prepare objects
-        train_dtl, val_dtl, self.model, self.optimizer, self.scheduler = self.scaler.prepare(
+        train_dtl, val_dtl, self.model, self.loss_function, self.optimizer, self.scheduler = self.scaler.prepare(
             train_dtl,
             val_dtl,
             self.model,
+            self.loss_function,
             self.optimizer,
             self.scheduler
         )
