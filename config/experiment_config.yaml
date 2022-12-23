@@ -1,7 +1,7 @@
 wandb:
-  WANDB_API_KEY: '1bb44e6be47564584868ec55bac8cf468cf0e47f'
-  WANDB_USERNAME: 'azm630'
-  WANDB_PROJECT: 'segformer_FTYM'
+  WANDB_API_KEY: 'XXXXXX'
+  WANDB_USERNAME: 'XXXXXX'
+  WANDB_PROJECT: 'XXXXXX'
 train:
   img_size: 512
   batch_size: 32
@@ -12,12 +12,12 @@ train:
   ignore_index_loss: 255
   learning_rate: 0.00005
   weight_decay: 0.001
-  epochs: 30
+  epochs: 5
   warmup_epochs_factor: 0.125
   early_stopping: 2
   scheduler_mode: 'min'
   verbose_steps: 10
   filepath: 'output'
-  mixed_precision: 'no'
-  world_size: 8
+  mixed_precision: 'fp16'
+  world_size: 1
   seed: 123
