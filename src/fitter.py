@@ -590,8 +590,9 @@ class SegmFitter(DistributedTorchFitterBase):
             self.optimizer.zero_grad()
             # Get logits
             output = self.model(pixel_values=x)
+            output = torch.nn.functional.interpolate(output.get('logits'), size=y.shape[-2:], mode="bilinear", align_corners=False)
             # Compute loss
-            loss = self.loss_function(output.get('logits'), y)
+            loss = self.loss_function(output, y)
             # Reduce loss (weights are left to custom loss implementation)
             loss = self.scaler.reduce(loss, reduction='sum')
             # Backpropagation
@@ -644,9 +645,10 @@ class SegmFitter(DistributedTorchFitterBase):
                 if metric:
                     y_true += y.cpu().numpy().tolist()
                 # Get model logits
-                output = self.model(pixel_values=x, labels=y)
+                output = self.model(pixel_values=x)
+                output = torch.nn.functional.interpolate(output.get('logits'), size=y.shape[-2:], mode="bilinear", align_corners=False)
                 # Compute loss
-                loss = output.get('loss')
+                loss = self.loss_function(output, y)
                 # Reduce loss (weights are left to custom loss implementation)
                 loss = self.scaler.reduce(loss, reduction='sum')
                 # Update metrics tracker objects
