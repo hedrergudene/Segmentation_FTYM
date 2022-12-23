@@ -581,7 +581,6 @@ class SegmFitter(DistributedTorchFitterBase):
         Args:
             x (List or Tuple or Dict): Data
             y (torch.Tensor): Labels
-            w (torch.Tensor, optional): Weights. Defaults to None.
         Returns:
             torch.Tensor: A tensor with the calculated loss
         """
@@ -589,9 +588,9 @@ class SegmFitter(DistributedTorchFitterBase):
             # Reset gradients
             self.optimizer.zero_grad()
             # Get logits
-            output = self.model(pixel_values=x, labels=y)
+            output = self.model(pixel_values=x)
             # Compute loss
-            loss = output.get('loss')
+            loss = self.loss_function(output.get('logits'), y)
             # Reduce loss (weights are left to custom loss implementation)
             loss = self.scaler.reduce(loss, reduction='sum')
             # Backpropagation

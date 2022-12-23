@@ -51,7 +51,7 @@ def main(
 
     # Get tools
     log.debug(f"Setup tools:")
-    train_idx, val_idx, tag2idx = setup_folder_structure_FTYM()
+    train_idx, val_idx, tag2idx, class_weights = setup_folder_structure_FTYM()
     idx2tag = {v:k for k,v in tag2idx.items()}
     # Build datasets
     log.debug(f"Prepare datasets:")
@@ -79,7 +79,7 @@ def main(
         reshape_last_stage=True
     )
     # Get loss, optimisers and schedulers
-    loss = PowerIoULoss(p=config_dct['train']['p_loss'], eps=config_dct['train']['eps_loss'], ignore_index=config_dct['train']['ignore_index_loss'])
+    loss = torch.nn.CrossEntropyLoss(weight=torch.Tensor(class_weights), ignore_index=config_dct['train']['ignore_index_loss'], reduction='none')
     optimizer = torch.optim.AdamW(model.parameters(),
                                   lr=config_dct['train']['learning_rate'],
                                   weight_decay=config_dct['train']['weight_decay'],

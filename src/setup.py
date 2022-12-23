@@ -79,7 +79,7 @@ def setup_folder_structure_FTYM(
         val_idx = [int(x.split('.')[0].lstrip('0')) if x!='000000.png' else 0 for x in os.listdir(os.path.join(pathdir, 'val', 'images'))]
     
     #
-    # Part III: Labels mapping
+    # Part III: Labels mapping and homemade stuff
     #
 
     tag2idx = {
@@ -104,4 +104,26 @@ def setup_folder_structure_FTYM(
         'FACEWEAR' : 18
     }
 
-    return train_idx, val_idx, tag2idx
+    class_weights = [
+        0.0001658747314334,
+        0.0012043172954295,
+        0.0137276061200101,
+        0.1968507907700739,
+        0.1964319631162028,
+        0.0942255875320043,
+        0.0933697862761819,
+        0.0547495411674153,
+        0.0535336807499800,
+        0.0951002747093535,
+        0.0565119300908439,
+        0.0493595760815996,
+        0.0062370452717332,
+        0.0012254438559717,
+        0.0154623923498118,
+        0.0007041252515757,
+        0.0630263970748995,
+        0.0081136675554797,
+        0.0000000000000000
+    ]
+
+    return train_idx, val_idx, tag2idx, class_weights
