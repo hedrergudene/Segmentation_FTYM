@@ -63,7 +63,7 @@ class ImageSegmentationDataset(Dataset):
                 A.PadIfNeeded(min_height=self.img_size, min_width=self.img_size, always_apply=True, border_mode=cv2.BORDER_CONSTANT)
                 ])
             augmented = pipe(image=image, mask=segmentation_map)
-            encoded_inputs = self.feature_extractor(image, segmentation_map, return_tensors="pt")
+            encoded_inputs = self.feature_extractor(augmented['image'], augmented['mask'], return_tensors="pt")
         # encoded inputs contains 'pixel_values' and 'labels' as elements
         #return (encoded_inputs.get('pixel_values').squeeze(), torch.stack([encoded_inputs.get('labels').squeeze()==i for i in range(self.num_labels)], dim=0).to(torch.int))
         return (encoded_inputs.get('pixel_values').squeeze(), encoded_inputs.get('labels').squeeze())
