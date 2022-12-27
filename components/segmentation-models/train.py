@@ -91,8 +91,9 @@ def main(
     in_channels=3,                                              # model input channels (1 for gray-scale images, 3 for RGB, etc.)
     classes=len(idx2tag),                                       # model output channels (number of classes in your dataset)
     )
+    model.double()
     # Get loss, optimisers and schedulers
-    loss = torch.nn.CrossEntropyLoss(weight=torch.Tensor(class_weights), ignore_index=config_dct['train']['ignore_index_loss'], reduction='none')
+    loss = torch.nn.CrossEntropyLoss(weight=torch.Tensor(class_weights).type(torch.DoubleTensor), ignore_index=config_dct['train']['ignore_index_loss'], reduction='none')
     optimizer = torch.optim.AdamW(model.parameters(),
                                   lr=config_dct['train']['learning_rate'],
                                   weight_decay=config_dct['train']['weight_decay'],

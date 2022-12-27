@@ -66,7 +66,7 @@ class ImageSegmentationDataset(Dataset):
                 ])
             augmented = pipe(image=image, mask=segmentation_map)
             img = self.preprocess_input(augmented['image'], **self.prep_params)
-        return (torch.from_numpy(img).squeeze(), torch.from_numpy(augmented['mask']).squeeze())
+        return (torch.from_numpy(img).squeeze().type(torch.DoubleTensor), torch.from_numpy(augmented['mask']).squeeze().type(torch.LongTensor))
 
     @staticmethod
     def preprocess_input(x, mean=None, std=None, input_space="RGB", input_range=None, **kwargs):
