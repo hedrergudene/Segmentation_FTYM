@@ -1,6 +1,7 @@
 # Libraries
 import os
 import cv2
+import numpy as np
 import torch
 import albumentations as A
 from segmentation_models_pytorch.encoders import get_preprocessing_params
@@ -64,8 +65,8 @@ class ImageSegmentationDataset(Dataset):
                 A.PadIfNeeded(min_height=self.img_size, min_width=self.img_size, always_apply=True, border_mode=cv2.BORDER_CONSTANT)
                 ])
             augmented = pipe(image=image, mask=segmentation_map)
-            encoded_inputs = self.preprocess_input(augmented['image'], **self.prep_params)
-        return (encoded_inputs.squeeze(), augmented['mask'].squeeze())
+            img = self.preprocess_input(augmented['image'], **self.prep_params)
+        return (torch.from_numpy(img).squeeze(), torch.from_numpy(augmented['mask']).squeeze())
 
     @staticmethod
     def preprocess_input(x, mean=None, std=None, input_space="RGB", input_range=None, **kwargs):
@@ -78,11 +79,11 @@ class ImageSegmentationDataset(Dataset):
                     x = x / 255.0
 
             if mean is not None:
-                mean = torch.Tensor(mean)
+                mean = np.array(mean)
                 x = x - mean
 
             if std is not None:
-                std = torch.Tensor(std)
+                std = np.array(std)
                 x = x / std
 
-            return torch.permute(x, (0,3,1,2))
+            return np.transpose(x, (0,3,1,2))
