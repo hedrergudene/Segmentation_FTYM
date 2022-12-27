@@ -58,7 +58,7 @@ class ImageSegmentationDataset(Dataset):
                 A.RandomBrightnessContrast(brightness_limit=(-.1,.1), contrast_limit=(-.1,.1), p=0.8),    
                 A.RandomGamma(p=0.8)])
             augmented = pipe(image=image, mask=segmentation_map)
-            encoded_inputs = self.preprocess_input(augmented['image'], **self.prep_params)
+            img = self.preprocess_input(augmented['image'], **self.prep_params)
         else:
             pipe = A.Compose([
                 A.Resize(height=self.img_size, width=self.img_size, interpolation=cv2.INTER_LINEAR, always_apply=True),
