@@ -86,4 +86,4 @@ class ImageSegmentationDataset(Dataset):
                 std = np.array(std)
                 x = x / std
 
-            return np.transpose(x, (0,3,1,2))
+            return np.transpose(x, (2,0,1))
