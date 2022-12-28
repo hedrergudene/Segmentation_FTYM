@@ -66,7 +66,8 @@ def inference(image, model=model, feature_extractor=feature_extractor, device=de
 
 demo = gr.Interface(
     inference,
-    gr.Image(shape=(512,512), source="webcam", streaming=True),
-    "image"
+    gr.Image(shape=(512,512), source="webcam", streaming=True, flip=True),
+    "image",
+    live=True
 )
 demo.launch(share=True)
