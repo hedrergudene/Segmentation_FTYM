@@ -68,7 +68,8 @@ def inference(image, model=model, feature_extractor=feature_extractor, device=de
     frame = ToTensor()(image)
     with torch.no_grad():
         im_prep = feature_extractor(frame, return_tensors='pt')
-        output = model(pixel_values = im_prep.get('pixel_values').to(device))
+        input = im_prep.get('pixel_values').to(device)
+        output = model(pixel_values = input)
         output = torch.nn.functional.interpolate(output.get('logits').detach().cpu(), size=image.shape[:2], mode="bilinear", align_corners=False).argmax(dim=1).numpy()[0]
         my_cm = matplotlib.cm.get_cmap('jet')
         mapped_data = my_cm(output/18, bytes=False)
