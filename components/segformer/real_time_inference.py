@@ -49,6 +49,7 @@ def load_checkpoint(device):
     quantized_model = torch.quantization.quantize_dynamic(
         model, {torch.nn.Linear}, dtype=torch.qint8
     )
+    quantized_model.to(device)
     # Use TorchScript inference (oneDNN Graph)
     torch.jit.enable_onednn_fusion(True)
     # sample input should be of the same shape as expected inputs
@@ -57,7 +58,6 @@ def load_checkpoint(device):
     traced_model = torch.jit.trace(quantized_model, sample_input, strict=False)
     # Invoking torch.jit.freeze
     traced_model = torch.jit.freeze(traced_model)
-    traced_model.to(device)
     return idx2tag, feature_extractor, traced_model
 
 device = 'cuda:0' if torch.cuda.is_available() else 'cpu'
