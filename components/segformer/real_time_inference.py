@@ -46,8 +46,19 @@ def load_checkpoint(device):
     )
     # Load weights
     model.load_state_dict(ckpt.get('model_state_dict'))
-    model.to(device)
-    return idx2tag, feature_extractor, model
+    quantized_model = torch.quantization.quantize_dynamic(
+        model, {torch.nn.Linear}, dtype=torch.qint8
+    )
+    # Use TorchScript inference (oneDNN Graph)
+    torch.jit.enable_onednn_fusion(True)
+    # sample input should be of the same shape as expected inputs
+    sample_input = feature_extractor(torch.rand(3, 512, 512), return_tensors='pt').get('pixel_values')
+    # Tracing the model with example input
+    traced_model = torch.jit.trace(quantized_model, sample_input, strict=False)
+    # Invoking torch.jit.freeze
+    traced_model = torch.jit.freeze(traced_model)
+    traced_model.to(device)
+    return idx2tag, feature_extractor, traced_model
 
 device = 'cuda:0' if torch.cuda.is_available() else 'cpu'
 idx2tag, feature_extractor, model = load_checkpoint(device)
@@ -58,7 +69,7 @@ def inference(image, model=model, feature_extractor=feature_extractor, device=de
     with torch.no_grad():
         im_prep = feature_extractor(frame, return_tensors='pt')
         output = model(pixel_values = im_prep.get('pixel_values').to(device))
-        output = torch.nn.functional.interpolate(output.get('logits').detach(), size=image.shape[:2], mode="bilinear", align_corners=False).argmax(dim=1).numpy()[0]
+        output = torch.nn.functional.interpolate(output.get('logits').detach().cpu(), size=image.shape[:2], mode="bilinear", align_corners=False).argmax(dim=1).numpy()[0]
         my_cm = matplotlib.cm.get_cmap('jet')
         mapped_data = my_cm(output/18, bytes=False)
         return mapped_data
