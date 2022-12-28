@@ -54,6 +54,7 @@ def load_checkpoint(device):
     torch.jit.enable_onednn_fusion(True)
     # sample input should be of the same shape as expected inputs
     sample_input = feature_extractor(torch.rand(3, 512, 512), return_tensors='pt').get('pixel_values')
+    sample_input.to(device)
     # Tracing the model with example input
     traced_model = torch.jit.trace(quantized_model, sample_input, strict=False)
     # Invoking torch.jit.freeze
