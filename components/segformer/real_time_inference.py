@@ -46,20 +46,8 @@ def load_checkpoint(device):
     )
     # Load weights
     model.load_state_dict(ckpt.get('model_state_dict'))
-    quantized_model = torch.quantization.quantize_dynamic(
-        model, {torch.nn.Linear}, dtype=torch.qint8
-    )
-    quantized_model.to(device)
-    # Use TorchScript inference (oneDNN Graph)
-    torch.jit.enable_onednn_fusion(True)
-    # sample input should be of the same shape as expected inputs
-    sample_input = feature_extractor(torch.rand(3, 512, 512), return_tensors='pt').get('pixel_values')
-    sample_input.to(device)
-    # Tracing the model with example input
-    traced_model = torch.jit.trace(quantized_model, sample_input, strict=False)
-    # Invoking torch.jit.freeze
-    traced_model = torch.jit.freeze(traced_model)
-    return idx2tag, feature_extractor, traced_model
+    model.to(device)
+    return idx2tag, feature_extractor, model
 
 device = 'cuda:0' if torch.cuda.is_available() else 'cpu'
 idx2tag, feature_extractor, model = load_checkpoint(device)
@@ -69,8 +57,7 @@ def inference(image, model=model, feature_extractor=feature_extractor, device=de
     frame = ToTensor()(image)
     with torch.no_grad():
         im_prep = feature_extractor(frame, return_tensors='pt')
-        input = im_prep.get('pixel_values')
-        input.to(device)
+        input = im_prep.get('pixel_values').to(device)
         output = model(pixel_values = input)
         output = torch.nn.functional.interpolate(output.get('logits').detach().cpu(), size=image.shape[:2], mode="bilinear", align_corners=False).argmax(dim=1).numpy()[0]
         my_cm = matplotlib.cm.get_cmap('jet')
@@ -80,7 +67,7 @@ def inference(image, model=model, feature_extractor=feature_extractor, device=de
 
 demo = gr.Interface(
     inference,
-    gr.Image(shape=(512,512), source="webcam", streaming=True, flip=True),
+    gr.Image(shape=(512,512), source="webcam", streaming=True),
     "image",
     live=True
 )
