@@ -491,14 +491,14 @@ class DistributedTorchFitterBase:
             verbose (bool, optional): True = print logs, False = silence. Defaults to True.
         """
         # Fetch model without distributed config
-        model_aux = self.scaler.unwrap_model(self.model)
+        self.model = self.scaler.unwrap_model(self.model)
 
         if verbose:
             self.log(f'Checkpoint is saved to {path}')
-        model_aux.eval()
+        self.model.eval()
 
         data = {
-                'model_state_dict': model_aux.state_dict(),
+                'model_state_dict': self.model.state_dict(),
                 'optimizer_state_dict': self.optimizer.state_dict(),
                 'best_summary_loss': self.best_metric,
                 'epoch': self.epoch,
@@ -511,6 +511,10 @@ class DistributedTorchFitterBase:
             os.makedirs(self.base_dir)
 
         self.scaler.save(data, path)
+
+        # Back to readiness
+        self.model = self.scaler.prepare(self.model)
+        
 
     def load(self, path, only_model=False):
         """
